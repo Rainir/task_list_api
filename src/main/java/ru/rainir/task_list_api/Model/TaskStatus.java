@@ -1,7 +1,23 @@
 package ru.rainir.task_list_api.Model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+
+@Getter
 public enum TaskStatus {
-    PENDING,
+    OPEN,
     COMPLETED,
-    FAILED
+    FAILED;
+
+    @JsonValue
+    public String toString() {
+        return name();
+    }
+
+    @JsonCreator
+    public static TaskStatus getTaskStatus(String value) {
+        return TaskStatus.valueOf(value.toUpperCase());
+    }
+
 }

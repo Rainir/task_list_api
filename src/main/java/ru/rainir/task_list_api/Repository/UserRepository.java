@@ -6,4 +6,5 @@ import ru.rainir.task_list_api.Model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    User getUsersByUsername(String username);
 }

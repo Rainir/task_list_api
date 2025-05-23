@@ -25,8 +25,8 @@ public class UserService {
         return convertUserToUserDto(userRepository.save(user));
     }
 
-    public UserDto updateUserDto(String id, UpdateUserDto updateUserDto) {
-        User user  = userRepository.findById(Long.parseLong(id)).get();
+    public UserDto updateUserDto(UpdateUserDto updateUserDto) {
+        User user = userRepository.findById(updateUserDto.getId()).get();
         user.setFirstName(updateUserDto.getFirstName());
         user.setLastName(updateUserDto.getLastName());
         return convertUserToUserDto(userRepository.save(user));
@@ -36,9 +36,22 @@ public class UserService {
         return convertUserToUserDto(userRepository.findById(id).get());
     }
 
+    public UserDto getUserDtoByUsername(String username) {
+        return convertUserToUserDtoWithoutId(userRepository.getUsersByUsername((username)));
+    }
+
     private UserDto convertUserToUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setEmail(user.getEmail());
+        return userDto;
+    }
+
+    private UserDto convertUserToUserDtoWithoutId(User user) {
+        UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
