@@ -7,6 +7,8 @@ import ru.rainir.task_list_api.Dto.UserDto.UserDto;
 import ru.rainir.task_list_api.Model.User;
 import ru.rainir.task_list_api.Repository.UserRepository;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class UserService {
 
@@ -26,14 +28,21 @@ public class UserService {
     }
 
     public UserDto updateUserDto(UpdateUserDto updateUserDto) {
-        User user = userRepository.findById(updateUserDto.getId()).get();
-        user.setFirstName(updateUserDto.getFirstName());
-        user.setLastName(updateUserDto.getLastName());
+        User user = userRepository.findById(updateUserDto.getId())
+                        .orElseThrow(() -> new NoSuchElementException("Пользователь не найден!"));
+        if (updateUserDto.getFirstName() != null && !updateUserDto.getFirstName().isEmpty()) {
+            user.setFirstName(updateUserDto.getFirstName());
+        }
+        if (updateUserDto.getLastName() != null && !updateUserDto.getLastName().isEmpty()) {
+            user.setLastName(updateUserDto.getLastName());
+        }
         return convertUserToUserDto(userRepository.save(user));
     }
 
     public UserDto getUserDtoById(Long id) {
-        return convertUserToUserDto(userRepository.findById(id).get());
+        return userRepository.findById(id)
+                .map(this::convertUserToUserDto)
+                .orElseThrow(() -> new NoSuchElementException("Пользователь с данным id: " + id + " не найден!"));
     }
 
     public UserDto getUserDtoByUsername(String username) {

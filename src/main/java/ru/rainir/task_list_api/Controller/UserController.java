@@ -25,17 +25,20 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserDto> getUser(Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDtoById(id));
+        if (id == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(userService.getUserDtoById(id));
     }
 
     @ResponseBody
-    @PostMapping("/upload")
+    @PatchMapping
     public ResponseEntity<UserDto> updateUser(UpdateUserDto updateUserDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.updateUserDto(updateUserDto));
+        return ResponseEntity.ok(userService.updateUserDto(updateUserDto));
     }
 
     @GetMapping("/{username}")
     public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDtoByUsername(username));
+        return ResponseEntity.ok(userService.getUserDtoByUsername(username));
     }
 }
