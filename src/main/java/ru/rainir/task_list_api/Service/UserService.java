@@ -30,6 +30,7 @@ public class UserService {
     public UserDto updateUserDto(UpdateUserDto updateUserDto) {
         User user = userRepository.findById(updateUserDto.getId())
                         .orElseThrow(() -> new NoSuchElementException("Пользователь не найден!"));
+
         if (updateUserDto.getFirstName() != null && !updateUserDto.getFirstName().isEmpty()) {
             user.setFirstName(updateUserDto.getFirstName());
         }

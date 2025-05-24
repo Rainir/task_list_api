@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.rainir.task_list_api.Dto.TaskDto.CreateTaskDto;
 import ru.rainir.task_list_api.Dto.TaskDto.TaskDto;
+import ru.rainir.task_list_api.Dto.TaskDto.UpdateTaskDto;
 import ru.rainir.task_list_api.Service.TaskService;
 
 import java.util.List;
@@ -20,9 +21,17 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskDto> createTask(CreateTaskDto createTaskDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                taskService.getTask(taskService.createTask(createTaskDto.getAuthorId(), createTaskDto).getId())
-        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(createTaskDto.getAuthorId(), createTaskDto));
+    }
+
+    @PatchMapping
+    public ResponseEntity<TaskDto> updateTask(UpdateTaskDto updateTaskDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTask(updateTaskDto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTask(id));
     }
 
     @GetMapping

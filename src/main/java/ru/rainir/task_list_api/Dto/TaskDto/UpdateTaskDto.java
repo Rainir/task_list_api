@@ -12,6 +12,7 @@ import ru.rainir.task_list_api.Model.TaskStatus;
 @NoArgsConstructor
 public class UpdateTaskDto {
     private Long id;
+    private Long authorId;
     private String title;
     private String description;
     private Integer priority;
