@@ -10,9 +10,9 @@ import ru.rainir.task_list_api.Model.TaskStatus;
 import ru.rainir.task_list_api.Repository.TaskRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -27,6 +27,7 @@ public class TaskService {
         Task task = new Task();
 
         task.setAuthorId(authorId);
+
         task.setTitle(createTaskDto.getTitle());
         task.setDescription(createTaskDto.getDescription());
         task.setPriority(createTaskDto.getPriority());
@@ -35,6 +36,9 @@ public class TaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
 
+        if (createTaskDto.getCompletedAt() == null) {
+            task.setCompletedAt(LocalDateTime.of(3000, 1, 1, 0, 0));
+        }
         task.setCompletedAt(createTaskDto.getCompletedAt());
 
         return convertTaskToDto(taskRepository.save(task));
@@ -44,8 +48,7 @@ public class TaskService {
 
         Long updateAuthorId = updateTaskDto.getAuthorId();
 
-        Task task = taskRepository.findById(updateTaskDto.getId())
-                .orElseThrow(() -> new NoSuchElementException("Задача с ID: " + updateTaskDto.getId() + "не найдена!"));
+        Task task = getTaskFromBd(updateAuthorId);
 
         if (!updateAuthorId.equals(task.getAuthorId())) {
             throw new AuthorizationException("У вас нет прав на изменение этой задачи!");
@@ -68,17 +71,33 @@ public class TaskService {
         return convertTaskToDto(taskRepository.save(task));
     }
 
+    public TaskDto deleteTask(Long id) {
+        return convertTaskToDto(taskRepository.deleteTaskById(id));
+    }
+
+    public TaskDto updateTaskStatus(Long id, TaskStatus taskStatus) {
+        Task task = getTaskFromBd(id);
+        task.setStatus(taskStatus);
+        task.setUpdatedAt(LocalDateTime.now());
+        return convertTaskToDto(taskRepository.save(task));
+    }
+
     public TaskDto getTask(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Задача с ID: " + id + " не найдена!"));
+        Task task = getTaskFromBd(id);
         System.out.println(task);
-        assert task != null;
         return convertTaskToDto(task);
     }
 
     public List<TaskDto> getAllTasksByAuthorId(Long authorId) {
-        List<TaskDto> taskDtoList = new ArrayList<>();
-        taskRepository.findByAuthorId(authorId).forEach(task -> taskDtoList.add(convertTaskToDto(task)));
-        return taskDtoList;
+        return taskRepository.findByAuthorId(authorId).stream().map(
+                task -> {
+                    if (task.getCompletedAt().isBefore(LocalDateTime.now()) && task.getCompletedAt() != null) {
+                        task.setStatus(TaskStatus.FAILED);
+                        taskRepository.save(task);
+                    }
+                    return convertTaskToDto(task);
+                }
+        ).collect(Collectors.toList());
     }
 
     private TaskDto convertTaskToDto(Task task) {
@@ -93,5 +112,10 @@ public class TaskService {
         taskDto.setUpdatedAt(task.getUpdatedAt());
         taskDto.setCompletedAt(task.getCompletedAt());
         return taskDto;
+    }
+
+    private Task getTaskFromBd(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Задача с ID: " + id + " не найдена!"));
     }
 }
