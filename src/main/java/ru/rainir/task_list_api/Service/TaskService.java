@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.rainir.task_list_api.Dto.TaskDto.CreateTaskDto;
 import ru.rainir.task_list_api.Dto.TaskDto.TaskDto;
 import ru.rainir.task_list_api.Dto.TaskDto.UpdateTaskDto;
-import ru.rainir.task_list_api.Exception.TaskException.AuthorizationException;
+import ru.rainir.task_list_api.Exception.TaskException.AccessDeniedException;
 import ru.rainir.task_list_api.Model.Task;
 import ru.rainir.task_list_api.Model.TaskStatus;
 import ru.rainir.task_list_api.Repository.TaskRepository;
@@ -36,22 +36,20 @@ public class TaskService {
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
 
-        if (createTaskDto.getCompletedAt() == null) {
-            task.setCompletedAt(LocalDateTime.of(3000, 1, 1, 0, 0));
-        }
+        task.setCompletedAt(createTaskDto.getCompletedAt() != null ? createTaskDto.getCompletedAt()
+                : LocalDateTime.of(3000, 1, 1, 0, 0));
+
         task.setCompletedAt(createTaskDto.getCompletedAt());
 
-        return convertTaskToDto(taskRepository.save(task));
+        return saveAndConvertToDto(task);
     }
 
     public TaskDto updateTask(UpdateTaskDto updateTaskDto) {
 
-        Long updateAuthorId = updateTaskDto.getAuthorId();
+        Task task = getTaskFromBd(updateTaskDto.getId());
 
-        Task task = getTaskFromBd(updateAuthorId);
-
-        if (!updateAuthorId.equals(task.getAuthorId())) {
-            throw new AuthorizationException("У вас нет прав на изменение этой задачи!");
+        if (!updateTaskDto.getAuthorId().equals(task.getAuthorId())) {
+            throw new AccessDeniedException("У вас нет прав на изменение этой задачи!");
         }
 
         if (updateTaskDto.getTitle() != null && !updateTaskDto.getTitle().isEmpty()) {
@@ -68,18 +66,23 @@ public class TaskService {
         }
         task.setUpdatedAt(LocalDateTime.now());
 
-        return convertTaskToDto(taskRepository.save(task));
+        return saveAndConvertToDto(task);
     }
 
     public TaskDto deleteTask(Long id) {
         return convertTaskToDto(taskRepository.deleteTaskById(id));
     }
 
-    public TaskDto updateTaskStatus(Long id, TaskStatus taskStatus) {
+    public TaskDto updateTaskStatus(Long id, TaskStatus taskStatus, Long authorId) {
+
         Task task = getTaskFromBd(id);
+
+        if (!authorId.equals(task.getAuthorId())) {
+            throw new AccessDeniedException("У вас нет прав на изменение статуса этой задачи!");
+        }
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now());
-        return convertTaskToDto(taskRepository.save(task));
+        return saveAndConvertToDto(task);
     }
 
     public TaskDto getTask(Long id) {
@@ -101,17 +104,21 @@ public class TaskService {
     }
 
     private TaskDto convertTaskToDto(Task task) {
-        TaskDto taskDto = new TaskDto();
-        taskDto.setId(task.getId());
-        taskDto.setAuthorId(task.getAuthorId());
-        taskDto.setTitle(task.getTitle());
-        taskDto.setDescription(task.getDescription());
-        taskDto.setStatus(task.getStatus());
-        taskDto.setPriority(task.getPriority());
-        taskDto.setCreatedAt(task.getCreatedAt());
-        taskDto.setUpdatedAt(task.getUpdatedAt());
-        taskDto.setCompletedAt(task.getCompletedAt());
-        return taskDto;
+        return new TaskDto(
+                task.getId(),
+                task.getAuthorId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getPriority(),
+                task.getStatus(),
+                task.getCreatedAt(),
+                task.getUpdatedAt(),
+                task.getCompletedAt()
+        );
+    }
+
+    private TaskDto saveAndConvertToDto(Task task) {
+        return convertTaskToDto(taskRepository.save(task));
     }
 
     private Task getTaskFromBd(Long id) {

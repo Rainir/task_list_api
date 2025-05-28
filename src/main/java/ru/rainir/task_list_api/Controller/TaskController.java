@@ -15,27 +15,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/tasks")
 public class TaskController {
+
     private final TaskService taskService;
 
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
-    @GetMapping("/task_list")
-    public ResponseEntity<List<TaskDto>> getTasksByAuthorId(Long authorId) {
-        System.out.println(authorId);
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasksByAuthorId(authorId));
+    @PostMapping("/create")
+    public ResponseEntity<TaskDto> createTask(@RequestBody CreateTaskDto createTaskDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(createTaskDto.getAuthorId(), createTaskDto));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<TaskDto> createTask(CreateTaskDto createTaskDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(createTaskDto.getAuthorId(), createTaskDto));
+    @GetMapping
+    public ResponseEntity<List<TaskDto>> getTasksByAuthorId(@RequestParam Long authorId) {
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasksByAuthorId(authorId));
     }
 
     @PatchMapping
     public ResponseEntity<TaskDto> updateTask(UpdateTaskDto updateTaskDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTask(updateTaskDto));
+        return ResponseEntity.ok(taskService.updateTask(updateTaskDto));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
@@ -43,13 +44,8 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long id, @PathParam("taskStatus") TaskStatus taskStatus) {
-        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTaskStatus(id, taskStatus));
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long id, @RequestBody UpdateTaskDto updateTaskDto) {
-        return ResponseEntity.ok(taskService.updateTask(updateTaskDto));
+    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long id, @PathParam("taskStatus") TaskStatus taskStatus, Long authorId) {
+        return ResponseEntity.status(HttpStatus.OK).body(taskService.updateTaskStatus(id, taskStatus, authorId));
     }
 
     @DeleteMapping("/{id}")
