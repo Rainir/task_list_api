@@ -39,8 +39,6 @@ public class TaskService {
         task.setCompletedAt(createTaskDto.getCompletedAt() != null ? createTaskDto.getCompletedAt()
                 : LocalDateTime.of(3000, 1, 1, 0, 0));
 
-        task.setCompletedAt(createTaskDto.getCompletedAt());
-
         return saveAndConvertToDto(task);
     }
 
