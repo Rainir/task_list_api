@@ -46,4 +46,21 @@ public class TelegramUserService {
 
         return telegramUserRepository.save(telegramUser);
     }
+
+    public TelegramUser getTelegramUserByTelegramId(Long telegramId) {
+        return telegramUserRepository.getTelegramUserByTelegramId(telegramId);
+    }
+
+    public Long getUserIdByTelegramId(Long telegramId) {
+        return getTelegramUserByTelegramId(telegramId).getUserId();
+    }
+
+    private TelegramUser checkChangeTelegramUsernameUpdate(TelegramUser telegramUser) {
+        if (!getTelegramUserByTelegramId(
+                telegramUser.getTelegramId()).getTelegramUsername()
+                .equals(telegramUser.getTelegramUsername())) {
+            return telegramUserRepository.save(telegramUser);
+        }
+        return telegramUser;
+    }
 }
