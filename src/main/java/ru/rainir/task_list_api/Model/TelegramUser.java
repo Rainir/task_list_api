@@ -8,6 +8,7 @@ import lombok.Data;
 @Table(name = "telegram_users")
 public class TelegramUser {
 
+    @JoinColumn(name = "user_id")
     private Long userId;
 
     @Column(unique = true, nullable = false)

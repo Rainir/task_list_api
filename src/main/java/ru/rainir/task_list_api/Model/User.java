@@ -24,7 +24,7 @@ public class User {
     private String lastName;
     private String email;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL,  orphanRemoval = true)
     @JoinColumn(name = "telegram_user_id")
     private TelegramUser telegramUser;
 

@@ -22,5 +22,4 @@ public class TelegramUserController {
     public ResponseEntity<TelegramUser> createTelegramUser(CreateTelegramUserDto createTelegramUserDto) {
         return ResponseEntity.ok(telegramUserService.createTelegramUser(createTelegramUserDto));
     }
-
 }
