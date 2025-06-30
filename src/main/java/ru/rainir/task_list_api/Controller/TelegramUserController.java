@@ -1,5 +1,6 @@
 package ru.rainir.task_list_api.Controller;
 
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.rainir.task_list_api.Dto.TelegramUserDto.CreateTelegramUserDto;
@@ -21,10 +22,18 @@ public class TelegramUserController {
         return ResponseEntity.ok(telegramUserService.createTelegramUser(createTelegramUserDto));
     }
 
-    @GetMapping
+    @GetMapping("/getTelegramUser")
     public ResponseEntity<TelegramUser> getTelegramUser(@RequestParam Long telegramId) {
         return ResponseEntity.ok(telegramUserService.getTelegramUserByTelegramId(telegramId));
     }
 
+    @GetMapping("/getUserId")
+    public ResponseEntity<Long> getUserIdByTelegramId(@RequestParam Long telegramId) {
+        return ResponseEntity.ok(telegramUserService.getUserIdByTelegramId(telegramId));
+    }
 
+    @GetMapping
+    public ResponseEntity<Boolean> checkUserIdBd(@PathParam("usernameAndId") String usernameAndId) {
+        return ResponseEntity.ok(telegramUserService.checkUserInBd(usernameAndId));
+    }
 }

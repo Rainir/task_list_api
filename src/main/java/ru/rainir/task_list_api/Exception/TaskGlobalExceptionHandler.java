@@ -36,6 +36,10 @@ public class TaskGlobalExceptionHandler extends Exception {
     }
 
     private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
+        return getMapResponseEntity(status, message);
+    }
+
+    static ResponseEntity<Map<String, Object>> getMapResponseEntity(HttpStatus status, String message) {
         Map<String, Object> error = new LinkedHashMap<>();
         error.put("status", status.value());
         error.put("message", message);

@@ -7,10 +7,11 @@ import lombok.Setter;
 @Setter
 public class CreateTelegramUserDto {
 
+    private Long userId;
+
     private String username;
     private String password;
 
     private Long telegramId;
     private String telegramUsername;
-    private boolean onlyTelegram;
 }

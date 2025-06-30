@@ -17,6 +17,7 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @JoinColumn(table = "users", referencedColumnName = "id")
     private Long authorId;
 
     private String title;

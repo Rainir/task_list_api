@@ -47,7 +47,7 @@ public class UserService {
     }
 
     public UserDto getUserDtoByUsername(String username) {
-        return convertUserToUserDtoWithoutId(userRepository.getUsersByUsername((username)));
+        return convertUserToUserDtoWithoutId(userRepository.getUserByUsername((username)));
     }
 
     private UserDto convertUserToUserDto(User user) {

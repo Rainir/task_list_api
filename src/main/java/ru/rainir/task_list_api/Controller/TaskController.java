@@ -22,8 +22,8 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<TaskDto> createTask(@RequestBody CreateTaskDto createTaskDto) {
+    @PostMapping(value = "/create")
+    public ResponseEntity<TaskDto> createTask(CreateTaskDto createTaskDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(createTaskDto.getAuthorId(), createTaskDto));
     }
 
@@ -36,7 +36,6 @@ public class TaskController {
     public ResponseEntity<TaskDto> updateTask(UpdateTaskDto updateTaskDto) {
         return ResponseEntity.ok(taskService.updateTask(updateTaskDto));
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {

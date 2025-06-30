@@ -1,5 +1,6 @@
 package ru.rainir.task_list_api.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rainir.task_list_api.Dto.TelegramUserDto.CreateTelegramUserDto;
@@ -23,36 +24,59 @@ public class TelegramUserService {
     @Transactional
     public TelegramUser createTelegramUser(CreateTelegramUserDto createTelegramUserDto) {
 
-        User user = new User();
-
-        user.setUsername(createTelegramUserDto.getUsername());
-        user.setPassword(createTelegramUserDto.getPassword());
-
-        if (createTelegramUserDto.isOnlyTelegram()) {
-            user.setUsername(createTelegramUserDto.getTelegramUsername());
-            user.setPassword("randomPassword");   //TODO create random pass
+        if (telegramUserRepository.existsById(createTelegramUserDto.getTelegramId())) {
+            throw new RuntimeException("Вы уже зарегистрированы!");
         }
 
+        User user = new User();
         TelegramUser telegramUser = new TelegramUser();
 
         telegramUser.setTelegramId(createTelegramUserDto.getTelegramId());
         telegramUser.setTelegramUsername(createTelegramUserDto.getTelegramUsername());
 
-        user.setTelegramUser(telegramUser);
+        if (createTelegramUserDto.getUserId() == null) {
 
-        telegramUser.setUserId(
-                 userRepository.saveAndFlush(user).getId()
-         );
+            user.setUsername(createTelegramUserDto.getUsername());
+            user.setPassword(createTelegramUserDto.getPassword());
+
+        } else {
+            if (checkUserInBd(createTelegramUserDto.getUsername() + " " + createTelegramUserDto.getUserId())) {
+                user = userRepository.getReferenceById(createTelegramUserDto.getUserId());
+                telegramUser.setUserId(user.getId());
+
+            } else {
+                throw new EntityNotFoundException("Пользователь с Username: " + createTelegramUserDto.getUsername() + " и Id: " + createTelegramUserDto.getUserId() + " не существует!");
+            }
+        }
+
+        user.setTelegramUser(telegramUser);
+        telegramUser.setUsername(user.getUsername());
+        if (user.getId() == null) {
+            telegramUser.setUserId(
+                    userRepository.saveAndFlush(user).getId()
+            );
+        } else {
+            telegramUser.setUserId(user.getId());
+            userRepository.save(user);
+        }
 
         return telegramUserRepository.save(telegramUser);
     }
 
     public TelegramUser getTelegramUserByTelegramId(Long telegramId) {
-        return telegramUserRepository.getTelegramUserByTelegramId(telegramId);
+        return telegramUserRepository.findById(telegramId).orElseThrow(() -> new EntityNotFoundException("Пользователь ID: " + telegramId + " не найден!"));
     }
 
     public Long getUserIdByTelegramId(Long telegramId) {
         return getTelegramUserByTelegramId(telegramId).getUserId();
+    }
+
+    public boolean checkUserInBd(String usernameAndId) {
+        String[] usernameAndIdArr = usernameAndId.split(" ");
+
+        User user = userRepository.getReferenceById(Long.parseLong(usernameAndIdArr[1]));
+
+        return user.getUsername().equals(usernameAndIdArr[0]);
     }
 
     private TelegramUser checkChangeTelegramUsernameUpdate(TelegramUser telegramUser) {

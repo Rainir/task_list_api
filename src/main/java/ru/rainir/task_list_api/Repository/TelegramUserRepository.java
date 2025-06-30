@@ -5,6 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.rainir.task_list_api.Model.TelegramUser;
 
 @Repository
-public interface TelegramUserRepository extends JpaRepository<TelegramUser, Integer> {
-    TelegramUser getTelegramUserByTelegramId(Long telegramId);
+public interface TelegramUserRepository extends JpaRepository<TelegramUser, Long> {
 }

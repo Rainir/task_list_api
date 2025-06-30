@@ -25,7 +25,6 @@ public class User {
     private String email;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL,  orphanRemoval = true)
-    @JoinColumn(name = "telegram_user_id")
     private TelegramUser telegramUser;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

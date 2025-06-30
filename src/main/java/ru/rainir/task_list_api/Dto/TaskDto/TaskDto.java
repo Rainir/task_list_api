@@ -1,9 +1,6 @@
 package ru.rainir.task_list_api.Dto.TaskDto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.rainir.task_list_api.Model.TaskStatus;
 
 import java.time.LocalDateTime;
