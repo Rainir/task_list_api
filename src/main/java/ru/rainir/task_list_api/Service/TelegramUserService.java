@@ -67,6 +67,10 @@ public class TelegramUserService {
         return telegramUserRepository.findById(telegramId).orElseThrow(() -> new EntityNotFoundException("Пользователь ID: " + telegramId + " не найден!"));
     }
 
+    public boolean checkTelegramUserRegistration(Long telegramId) {
+        return telegramUserRepository.existsById(telegramId);
+    }
+
     public Long getUserIdByTelegramId(Long telegramId) {
         return getTelegramUserByTelegramId(telegramId).getUserId();
     }

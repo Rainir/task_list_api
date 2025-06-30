@@ -27,6 +27,11 @@ public class TelegramUserController {
         return ResponseEntity.ok(telegramUserService.getTelegramUserByTelegramId(telegramId));
     }
 
+    @GetMapping("/checkTelegramUser")
+    public ResponseEntity<Boolean> checkTelegramUserRegistration(@RequestParam Long telegramId) {
+        return ResponseEntity.ok(telegramUserService.checkTelegramUserRegistration(telegramId));
+    }
+
     @GetMapping("/getUserId")
     public ResponseEntity<Long> getUserIdByTelegramId(@RequestParam Long telegramId) {
         return ResponseEntity.ok(telegramUserService.getUserIdByTelegramId(telegramId));
